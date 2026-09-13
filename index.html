@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="zh-Hant-TW">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>AI Wrapped — 你的 AI 使用回顧</title>
+  <meta name="description" content="拖放 ChatGPT 或 Claude 的官方匯出檔，在本機看看你的 AI 使用故事。100% 瀏覽器計算，資料永不上傳。" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header class="top">
+    <div class="brand">✨ AI Wrapped</div>
+    <a class="gh-link" href="https://github.com/ilovecat1005/ai-wrapped" target="_blank" rel="noopener">GitHub</a>
+  </header>
+
+  <main>
+    <section id="landing">
+      <h1>你和 AI 的故事，<br /><span class="grad">值得一張成績單</span></h1>
+      <p class="tagline">
+        拖放你的 <b>ChatGPT</b> 或 <b>Claude</b> 官方匯出檔，立刻看到你的對話習慣、活躍熱力圖、最常聊的主題，還有專屬稱號。
+      </p>
+
+      <div id="dropzone" role="button" tabindex="0" aria-label="選擇或拖放 conversations.json">
+        <input type="file" id="file-input" accept=".json,application/json" hidden />
+        <div class="dz-icon">📦</div>
+        <div class="dz-text"><b>拖放 conversations.json</b> 到這裡，或點擊選擇檔案</div>
+        <div class="dz-sub">ChatGPT：設定 → Data controls → Export data<br />Claude：設定 → Privacy → Export data</div>
+      </div>
+
+      <button id="demo-btn" class="ghost">👀 沒有匯出檔？先用示範資料看看</button>
+      <p id="status" class="status"></p>
+      <p id="error" class="error" hidden></p>
+
+      <div class="privacy-strip">
+        🔒 <b>100% 本機計算</b> — 這個頁面沒有任何對外請求、沒有 Cookie、沒有追蹤。你的對話內容永遠不會離開瀏覽器。
+      </div>
+    </section>
+
+    <section id="dashboard" hidden>
+      <div class="dash-head">
+        <div>
+          <span class="badge" id="fmt-badge"></span>
+          <p class="src" id="src-line"></p>
+        </div>
+        <div class="dash-actions">
+          <button id="share-btn" class="primary">📸 產生分享卡</button>
+          <button id="restart-btn" class="ghost">換一個檔案</button>
+        </div>
+      </div>
+
+      <div class="stats-row">
+        <div class="card stat" id="stat-convs"></div>
+        <div class="card stat" id="stat-msgs"></div>
+        <div class="card stat" id="stat-chars"></div>
+        <div class="card stat" id="stat-days"></div>
+      </div>
+
+      <div class="card">
+        <h2>🏆 你的稱號</h2>
+        <div id="awards" class="awards"></div>
+      </div>
+
+      <div class="card wide">
+        <h2>📅 活躍熱力圖</h2>
+        <p class="muted">每天送出給 AI 的訊息數（近一年）</p>
+        <div id="heatmap"></div>
+      </div>
+
+      <div class="grid-2">
+        <div class="card">
+          <h2>🕐 什麼時候最愛用？</h2>
+          <div id="hours" class="bars"></div>
+        </div>
+        <div class="card">
+          <h2>🗓️ 星期分佈</h2>
+          <div id="weekdays" class="bars"></div>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <div class="card">
+          <h2>📈 每月訊息量</h2>
+          <div id="monthly" class="bars"></div>
+        </div>
+        <div class="card">
+          <h2>🧠 你都拿 AI 做什麼？</h2>
+          <div id="donut" class="donut-wrap"></div>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <div class="card">
+          <h2>💬 最常出現的關鍵字</h2>
+          <div id="keywords" class="chips"></div>
+        </div>
+        <div class="card">
+          <h2>📚 最長的幾場對話</h2>
+          <div id="top-convs"></div>
+        </div>
+      </div>
+
+      <div class="card" id="model-block" hidden>
+        <h2>🤖 模型使用分佈</h2>
+        <div id="models" class="bars"></div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <p>AI Wrapped — 在你的瀏覽器裡完成一切計算。原始碼以 <a href="https://github.com/ilovecat1005/ai-wrapped/blob/main/LICENSE" target="_blank" rel="noopener">MIT 授權</a>公開。</p>
+  </footer>
+
+  <script type="module" src="app.js"></script>
+</body>
+</html>
