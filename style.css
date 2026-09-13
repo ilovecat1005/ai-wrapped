@@ -150,3 +150,17 @@ button { font: inherit; border-radius: 12px; cursor: pointer; padding: 12px 20px
 
 footer { text-align: center; color: var(--muted); font-size: 0.85rem; padding: 24px 16px 40px; }
 footer a { color: var(--accent-2); }
+
+/* 分享卡預覽 */
+.share-overlay {
+  position: fixed; inset: 0; z-index: 50;
+  background: rgba(4, 6, 12, 0.82);
+  display: flex; align-items: center; justify-content: center; padding: 20px;
+}
+.share-box {
+  background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius);
+  padding: 18px; display: flex; flex-direction: column; gap: 14px; max-height: 94vh;
+}
+.share-box img { max-height: 70vh; border-radius: 12px; }
+.share-actions { display: flex; gap: 10px; justify-content: center; }
+.share-actions a { text-decoration: none; font-weight: 600; display: inline-block; }

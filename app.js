@@ -40,6 +40,9 @@ $("restart-btn").addEventListener("click", () => {
   window.scrollTo({ top: 0, behavior: "smooth" });
 });
 $("share-btn").addEventListener("click", shareCard);
+$("share-close").addEventListener("click", closeShare);
+$("share-overlay").addEventListener("click", (e) => { if (e.target === e.currentTarget) closeShare(); });
+document.addEventListener("keydown", (e) => { if (e.key === "Escape") closeShare(); });
 
 function readFile(file) {
   if (file.size > 300 * 1024 * 1024) return showError("檔案太大（超過 300MB），請確認是不是正確的匯出檔。");
@@ -162,9 +165,22 @@ function categoryItems(stats) {
     .sort((a, b) => b.value - a.value);
 }
 
-// ---- 分享卡（Canvas 產生 PNG） ----
+// ---- 分享卡（Canvas 產生 PNG，先預覽再下載） ----
+
+const CARD_FONT = "system-ui, 'PingFang TC', 'Microsoft JhengHei', sans-serif";
 
 function shareCard() {
+  const url = buildShareCanvas().toDataURL("image/png");
+  $("share-img").src = url;
+  $("share-download").href = url;
+  $("share-overlay").hidden = false;
+}
+
+function closeShare() {
+  $("share-overlay").hidden = true;
+}
+
+function buildShareCanvas() {
   const canvas = document.createElement("canvas");
   canvas.width = 1080; canvas.height = 1350;
   const ctx = canvas.getContext("2d");
@@ -180,48 +196,69 @@ function shareCard() {
   ctx.beginPath(); ctx.arc(120, 1200, 300, 0, Math.PI * 2); ctx.fill();
 
   ctx.fillStyle = "#e8ecf8";
-  ctx.font = "bold 84px system-ui, 'PingFang TC', 'Microsoft JhengHei', sans-serif";
+  ctx.font = "bold 84px " + CARD_FONT;
   ctx.fillText("我的 AI Wrapped", 90, 190);
   ctx.fillStyle = "#8b94ad";
-  ctx.font = "36px system-ui, 'PingFang TC', 'Microsoft JhengHei', sans-serif";
+  ctx.font = "36px " + CARD_FONT;
   ctx.fillText("我和 AI 相處的紀錄・本機統計", 90, 250);
 
-  const readValue = (id) => $(id).textContent;
-  const rows = [
-    ["場對話", readValue("stat-convs")],
-    ["則訊息", readValue("stat-msgs")],
-    ["你打的字", `${readValue("stat-chars")} 字`],
-    ["活躍天數", `${readValue("stat-days")} 天`],
-  ];
-  rows.forEach(([label, value], i) => {
-    const y = 430 + Math.floor(i / 2) * 220;
+  // 只抓數值欄位本身；單位與副文字分開、用小字畫，過長的數值自動縮小。
+  const readPart = (id, part) => $(id).querySelector(part)?.textContent?.trim() ?? "";
+  const stats = ["stat-convs", "stat-msgs", "stat-chars", "stat-days"].map((id) => ({
+    value: readPart(id, ".stat-value"),
+    unit: readPart(id, ".stat-unit"),
+    sub: readPart(id, ".stat-sub"),
+  }));
+
+  stats.forEach((s, i) => {
+    const y = 430 + Math.floor(i / 2) * 225;
     const x = 90 + (i % 2) * 470;
     ctx.fillStyle = "rgba(255,255,255,0.06)";
-    roundRect(ctx, x, y - 110, 430, 170, 24); ctx.fill();
+    roundRect(ctx, x, y - 92, 430, 184, 24); ctx.fill();
+
+    let size = 72;
+    ctx.font = `bold ${size}px ` + CARD_FONT;
+    const maxUnitWidth = s.unit ? 330 : 358;
+    while (size > 36 && ctx.measureText(s.value).width > maxUnitWidth) {
+      size -= 4;
+      ctx.font = `bold ${size}px ` + CARD_FONT;
+    }
     ctx.fillStyle = "#22d3ee";
-    ctx.font = "bold 72px system-ui, 'PingFang TC', 'Microsoft JhengHei', sans-serif";
-    ctx.fillText(value.split(" ")[0], x + 36, y + 10);
-    ctx.fillStyle = "#8b94ad";
-    ctx.font = "32px system-ui, 'PingFang TC', 'Microsoft JhengHei', sans-serif";
-    ctx.fillText(label, x + 36, y + 48);
+    ctx.fillText(s.value, x + 36, y + 16);
+    if (s.unit) {
+      const valueWidth = ctx.measureText(s.value).width;
+      ctx.fillStyle = "#8b94ad";
+      ctx.font = "30px " + CARD_FONT;
+      ctx.fillText(s.unit, x + 36 + valueWidth + 14, y + 16);
+    }
+    if (s.sub) {
+      ctx.fillStyle = "#8b94ad";
+      ctx.font = "26px " + CARD_FONT;
+      ctx.fillText(clipText(ctx, s.sub, 358), x + 36, y + 62);
+    }
   });
 
   const awards = [...document.querySelectorAll("#awards .award-title")].map((el) => el.textContent).slice(0, 3);
   ctx.fillStyle = "#e8ecf8";
-  ctx.font = "bold 44px system-ui, 'PingFang TC', 'Microsoft JhengHei', sans-serif";
+  ctx.font = "bold 44px " + CARD_FONT;
   ctx.fillText("你的稱號", 90, 950);
-  ctx.font = "40px system-ui, 'PingFang TC', 'Microsoft JhengHei', sans-serif";
+  ctx.font = "40px " + CARD_FONT;
   ctx.fillStyle = "#c7cffb";
-  awards.forEach((a, i) => ctx.fillText(`★ ${a}`, 90, 1020 + i * 62));
+  awards.forEach((a, i) => ctx.fillText(`★ ${clipText(ctx, a, 860)}`, 90, 1020 + i * 62));
 
   ctx.fillStyle = "#8b94ad";
-  ctx.font = "30px system-ui, 'PingFang TC', 'Microsoft JhengHei', sans-serif";
+  ctx.font = "30px " + CARD_FONT;
   ctx.fillText("AI Wrapped · ilovecat1005.github.io/ai-wrapped", 90, 1280);
+  return canvas;
+}
 
-  const link = document.createElement("a");
-  link.download = "ai-wrapped.png";
-  link.href = canvas.toDataURL("image/png");
-  link.click();
+function clipText(ctx, text, maxWidth) {
+  if (ctx.measureText(text).width <= maxWidth) return text;
+  let clipped = text;
+  while (clipped.length > 1 && ctx.measureText(clipped + "…").width > maxWidth) {
+    clipped = clipped.slice(0, -1);
+  }
+  return clipped + "…";
 }
 
 function roundRect(ctx, x, y, w, h, r) {
