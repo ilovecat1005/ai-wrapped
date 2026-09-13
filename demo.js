@@ -5,7 +5,7 @@ export function generateDemoData() {
   const now = Date.now();
   const DAY_MS = 86400000;
   const conversations = [];
-  const count = 380 + Math.floor(rand() * 60);
+  const count = 460 + Math.floor(rand() * 40);
 
   const titles = [
     "Python pandas 合併兩個 dataframe 報錯", "幫我翻譯這段英文 email", "React useEffect 無限迴圈 debug",
@@ -18,10 +18,10 @@ export function generateDemoData() {
   ];
   const models = ["gpt-4o", "gpt-4o", "gpt-4o-mini", "gpt-4o-mini", "o3", "gpt-4"];
   // 深夜偏重的時段權重（0-23）
-  const hourWeights = [4, 2, 1, 1, 0.5, 0.5, 1, 2, 3, 4, 5, 6, 6, 5, 5, 5, 6, 7, 8, 9, 9, 8, 7, 6];
+  const hourWeights = [10, 7, 4, 2, 1, 1, 1, 2, 3, 4, 4, 5, 5, 5, 4, 4, 5, 6, 6, 7, 8, 9, 10, 10];
 
   for (let i = 0; i < count; i++) {
-    const daysAgo = Math.floor(Math.pow(rand(), 0.7) * 540);
+    const daysAgo = Math.floor(Math.pow(rand(), 0.8) * 400);
     const hour = pickWeighted(hourWeights, rand);
     const base = now - daysAgo * DAY_MS;
     const d = new Date(base);
